@@ -15,19 +15,10 @@
 (setq-default indicate-empty-lines       t
 	      indicate-buffer-boundaries t)
 
-(set-default-font "Iosevka Term 12")
-
 (line-number-mode   t)
 (column-number-mode t)
 (global-linum-mode  t)
 (setq linum-format "%d ")
-(global-hl-line-mode)
-
-;; Custom themes directory
-(push "~/.emacs.d/shared/themes" custom-theme-load-path)
-;; Safe theme: plan9 with modified linum font color
-(push "ab5b4fcba3c99fa8add40ea7edfdaecf8de3e0f752ef9dd5f7acb97c5efe2d1a" custom-safe-themes)
-(load-theme 'plan9)
 
 ;; Automatically reload if file changed and no unsaved changes in the buffer.
 (global-auto-revert-mode)
@@ -43,8 +34,12 @@
 
 (setq vc-make-backup-files t) ;; Backup files that are under version control
 
+;; TODO: This doesn't work. Files pop up in .emacs.d
 (setq auto-save-file-name-transforms
       '((".*" "~/.emacs.d/autosave" t)))
+
+;; Accept "y" or "n" as an answer.
+(fset 'yes-or-no-p 'y-or-n-p)
 
 ;; Local/secret configuration.
 ;; Keep this at the end to allow for settings overriding.
