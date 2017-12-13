@@ -1,0 +1,184 @@
+#===============================================================================
+# .cshrc.user
+# author: Krystian Pasterczyk <ekrypas>
+#===============================================================================
+
+unalias rm
+
+#-------------------------------------------------------------------------------
+
+set histfile = ~/.tcsh.history
+set history  = 1000
+set savehist = 1000 merge
+
+#-------------------------------------------------------------------------------
+
+set addsuffix
+set autolist
+set fignore   = (.o .swp \~)
+
+#-------------------------------------------------------------------------------
+
+set color  = (ls-F)
+set nobeep
+set promptchars = '%#'
+
+set red = '%{\033[0;31m%}'
+set grn = '%{\033[0;32m%}'
+set ylw = '%{\033[0;33m%}'
+set blu = '%{\033[0;34m%}'
+set mgn = '%{\033[0;35m%}'
+set cyn = '%{\033[0;36m%}'
+set wht = '%{\033[0;37m%}'
+set RED = '%{\033[1;31m%}'
+set GRN = '%{\033[1;32m%}'
+set YLW = '%{\033[1;33m%}'
+set BLU = '%{\033[1;34m%}'
+set MGN = '%{\033[1;35m%}'
+set CYN = '%{\033[1;36m%}'
+set WHT = '%{\033[1;37m%}'
+set rst = '%{\033[0m%}'
+
+################################################################################
+#                                                                              # 
+# Prompt settings                                                              #
+#                                                                              #
+# The prompt has the following form:                                           #
+#                                                                              #
+# [login@host||uname||cc_view]                                                 #
+# [cc_view description]                                                        #
+# [cwd]                                                                        #
+# ->                                                                           #
+#                                                                              #
+# login          - login                                                       #
+# host           - host                                                        #
+# uname          - name of the operating system on the host (SunOS/Linux)      #
+#                  red if not SunOS or Linux                                   #
+# cc_view        - current ClearCase view                                      #
+#                  red if not set                                              #
+# cc_view descr. - content of the ~/[cc_view].desc file                        #
+# cwd            - current working directory                                   #
+#                                                                              #
+################################################################################
+
+set Psep   = "${wht}||"             # Prompt separator
+set Plogin = "${cyn}%n" # User name
+set Phost  = "${CYN}%m" # Host name
+set Pdir   = "${blu}%~" # Current directory
+
+# Those will be colored separately:
+set Puname = "`uname`"        # Current operating system
+set Pview = "NO VIEW"         # Current ClearCase view
+set Pview_dsc = "---"         # Description of the view
+
+# COLORIZE: Current OS, colorized depending if SunOS/Linux or other
+switch (${Puname})
+  case "SunOS":
+    set Puname = "${MGN}${Puname}"
+    breaksw
+  case "Linux":
+    set Puname = "${MGN}${Puname}"
+    breaksw
+  default:
+    set Puname = "${red}${Puname}"
+    breaksw
+endsw
+
+## COLORIZE: Current view, colorized depending if belongs to the current user
+#( cleartool lsview -cview -s > ~/.cview.out.tmp ) >& ~/.cview.err.tmp
+#if ( -e ~/.cview.out.tmp && "`cat ~/.cview.out.tmp`" != "" ) then
+#  # CVIEW is not updated after changing the view, so update it
+#  setenv CVIEW `cleartool lsview -cview -s`
+#  set Pview = "${CVIEW}"
+#  set Pview_owner = `cleartool lsview -cview -long | fgrep 'View owner' | cut -d' ' -f3 | cut -d'/' -f2`
+#  if ( "${Pview_owner}" == `whoami` ) then
+#    set Pview = "${grn}${Pview}"
+#  else
+#    set Pview = "${red}${Pview}"
+#  endif
+#else
+#  set Pview = "${red}NO VIEW"
+#endif
+#rm -rf ~/.cview.out.tmp
+#rm -rf ~/.cview.err.tmp
+#
+## COLORIZE: Current view description, if available
+#if ( $?CVIEW ) then
+#  if (-e ~/${CVIEW}.desc) then
+#    set Pview_dsc = "${ylw}`cat ~/${CVIEW}.desc`"
+#  else
+#    set Pview_dsc = "${ylw}---"
+#  endif
+#else
+#  set Pview_dsc = "${ylw}---"
+#endif
+
+#set prompt = "${wht}[${Plogin}${wht}@${Phost}${Psep}${Puname}${Psep}${Pview}${wht}]\n"
+#set prompt = "${prompt}${wht}[${Pview_dsc}${wht}]\n"
+#set prompt = "${prompt}${wht}[${Pdir}${wht}]\n"
+#set prompt = "${prompt}${wht}->${rst} "
+
+set prompt = "${grn}%n${rst}@${red}%m${rst} [${blu}%c3${rst}]%# "
+
+if ( "`uname`" == "Linux" ) then
+  module add git
+else if ( "`uname`" == "SunOS" ) then
+  setenv PATH /opt/SELIW/git/current/bin:${PATH}
+endif
+
+set ls_options = "--color=auto -F"
+alias ls "ls ${ls_options}"
+unset ls_options
+
+alias l   'ls'
+alias la  'ls -A'
+alias ll  'ls -lh'
+alias lla 'ls -Alh'
+
+################################################################################
+# Other settings                                                               #
+################################################################################
+
+# XTerm title/icon text
+printf "\033]1;`tty | cut -d/ -f4`\007"
+printf "\033]2;[${HOST}] : $cwd\007"
+alias cwdcmd 'printf "\033]2;[${HOST}] : $cwd\007"'
+
+
+setenv EDITOR    '/opt/SELIW/vim/7.2/bin/vim'
+setenv WINEDITOR $EDITOR
+setenv VISUAL    $EDITOR
+setenv PAGER     '/usr/bin/less'
+setenv MANPAGER  '/usr/bin/less'
+setenv TERMINFO  '/home/ekrypas/.terminfo'
+
+setenv   LESS   '-FgiMRX'
+unsetenv LESS_IS_MORE
+
+setenv   CLICOLOR 'true'
+unsetenv CLICOLOR_FORCE
+
+umask 002
+
+# Changing directories
+alias /           'cd /'
+alias .           'pwd'
+alias ..          'cd ..'
+alias ../..       'cd ../..'
+alias ../../..    'cd ../../..'
+alias ../../../.. 'cd ../../../..'
+
+alias more 'less'
+
+alias refresh 'source ~/.tcshrc && rehash && clear'
+
+unset noclobber
+
+unalias rm
+
+xset fp
+
+set cfg_local_file = "~/.cfg-local/.cshrc.user.local"
+if ( -f ${cfg_local_file} ) then
+    source ${cfg_local_file}
+endif
